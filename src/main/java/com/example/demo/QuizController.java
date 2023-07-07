@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,53 @@ public class QuizController {
         }
     }
 
+    @PostMapping("/questions/{questionId}/answers")
+    public ResponseEntity<Answer> createAnswer(@PathVariable Long questionId, @RequestBody Answer answer) {
+        Optional<Question> optionalQuestion = questionRepository.findById(questionId);
+        if (optionalQuestion.isPresent()) {
+            Question question = optionalQuestion.get();
+            answer.setQuestion(question);
+            Answer createdAnswer = answerRepository.save(answer);
+            return ResponseEntity.ok(createdAnswer);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/questions/{questionId}/answers")
+    public ResponseEntity<List<Answer>> getAnswersForQuestion(@PathVariable Long questionId) {
+        Optional<Question> optionalQuestion = questionRepository.findById(questionId);
+        if (optionalQuestion.isPresent()) {
+            Question question = optionalQuestion.get();
+            List<Answer> answers = answerRepository.findByQuestion(question);
+            return ResponseEntity.ok(answers);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/answers/{answerId}")
+    public ResponseEntity<Answer> getAnswer(@PathVariable Long answerId) {
+        Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
+        if (optionalAnswer.isPresent()) {
+            Answer answer = optionalAnswer.get();
+            return ResponseEntity.ok(answer);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/questions/{questionId}/details")
+    public ResponseEntity<QuestionDetails> getQuestionDetails(@PathVariable Long questionId) {
+        Optional<Question> optionalQuestion = questionRepository.findById(questionId);
+        if (optionalQuestion.isPresent()) {
+            Question question = optionalQuestion.get();
+            List<Answer> answers = answerRepository.findByQuestion(question);
+            QuestionDetails questionDetails = new QuestionDetails(question, answers);
+            return ResponseEntity.ok(questionDetails);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     // Otros métodos de controlador para manejar las respuestas, cuestionarios, etc.
 }
