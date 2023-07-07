@@ -13,7 +13,7 @@ Esta es una API de Quizzes desarrollada con Spring Boot y MySQL. Proporciona end
 1. Clona el repositorio.
 
 2. Configura la base de datos MySQL:
-   - Crea una base de datos llamada `quizzes`.
+   - Crea una base de datos llamada `quizz`.
    - Actualiza las configuraciones de la base de datos en el archivo `application.properties` ubicado en `src/main/resources`.
 
 3. Ejecuta la aplicación:
@@ -60,5 +60,7 @@ Copy code
 ## Contribución
 
 Si quieres contribuir a este proyecto, siéntete libre de realizar un fork y enviar tus pull requests..
+
+API SpringBoot creada por @DogeDrake en GitHub y Twitter
 
 ¡Disfruta usando la API de Quizzes!
