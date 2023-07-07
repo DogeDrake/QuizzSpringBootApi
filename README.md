@@ -22,7 +22,7 @@ mvn spring-boot:run
 markdown
 Copy code
 
-4. La API estará disponible en `http://localhost:8080/api/quizzes`.
+4. La API estará disponible en `http://localhost:8081/api/quizz`.
 
 ## Endpoints
 
@@ -59,10 +59,6 @@ Copy code
 
 ## Contribución
 
-Si quieres contribuir a este proyecto, siéntete libre de realizar un fork y enviar tus pull requests.
-
-## Contacto
-
-Si tienes alguna pregunta o sugerencia, no dudes en contactarme en [tu-email@example.com](mailto:tu-email@example.com).
+Si quieres contribuir a este proyecto, siéntete libre de realizar un fork y enviar tus pull requests..
 
 ¡Disfruta usando la API de Quizzes!
