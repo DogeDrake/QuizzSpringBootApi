@@ -1,16 +1,10 @@
 package com.example.demo;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/quizzes")
@@ -18,10 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuizController {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final QuizRepository quizRepository;
 
-    public QuizController(QuestionRepository questionRepository, AnswerRepository answerRepository) {
+    public QuizController(QuestionRepository questionRepository, AnswerRepository answerRepository,
+            QuizRepository quizRepository) {
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
+        this.quizRepository = quizRepository;
     }
 
     @PostMapping("/questions")
@@ -89,5 +86,11 @@ public class QuizController {
             return ResponseEntity.notFound().build();
         }
     }
-    // Otros métodos de controlador para manejar las respuestas, cuestionarios, etc.
+
+    @GetMapping("/quizzes")
+    public ResponseEntity<List<Quiz>> getQuizzes() {
+        List<Quiz> quizzes = quizRepository.findAll();
+        return ResponseEntity.ok(quizzes);
+    }
+
 }
