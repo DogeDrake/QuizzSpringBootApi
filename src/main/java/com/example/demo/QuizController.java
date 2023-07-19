@@ -3,6 +3,7 @@ package com.example.demo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,5 +93,40 @@ public class QuizController {
         List<Quiz> quizzes = quizRepository.findAll();
         return ResponseEntity.ok(quizzes);
     }
+
+    @GetMapping("/quizzes/{quizId}/questions")
+    public ResponseEntity<List<QuestionDetails>> getQuestionsForQuiz(@PathVariable Long quizId) {
+        Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
+        if (optionalQuiz.isPresent()) {
+            Quiz quiz = optionalQuiz.get();
+            List<Question> questions = questionRepository.findByQuiz(quiz);
+            List<QuestionDetails> questionDetailsList = new ArrayList<>();
+
+            for (Question question : questions) {
+                List<Answer> answers = answerRepository.findByQuestion(question);
+                QuestionDetails questionDetails = new QuestionDetails(question, answers);
+                questionDetailsList.add(questionDetails);
+            }
+
+            return ResponseEntity.ok(questionDetailsList);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /*
+     * @GetMapping("/questions/count")
+     * public ResponseEntity<Long> getTotalQuestionCount() {
+     * Long totalQuestionCount = questionRepository.count();
+     * return ResponseEntity.ok(totalQuestionCount);
+     * }
+     * 
+     * @GetMapping("/{quizId}/questions/count")
+     * public ResponseEntity<Long> getQuestionCountByQuiz(@PathVariable Long quizId)
+     * {
+     * Long questionCount = questionRepository.countByQuizId(quizId);
+     * return ResponseEntity.ok(questionCount);
+     * }
+     */
 
 }
