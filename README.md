@@ -19,9 +19,6 @@ Esta es una API de Quizzes desarrollada con Spring Boot y MySQL. Proporciona end
 3. Ejecuta la aplicación:
 mvn spring-boot:run
 
-markdown
-Copy code
-
 4. La API estará disponible en `http://localhost:8081/api/quizz`.
 
 ### Crear una pregunta
