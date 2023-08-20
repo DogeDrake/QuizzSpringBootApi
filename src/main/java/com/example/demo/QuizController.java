@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -128,5 +129,117 @@ public class QuizController {
      * return ResponseEntity.ok(questionCount);
      * }
      */
+
+    @GetMapping("/quizzes/{quizId}/random-questions")
+    public ResponseEntity<List<QuestionDetails>> getRandomQuestionsForQuiz(@PathVariable Long quizId) {
+        Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
+        if (optionalQuiz.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Quiz quiz = optionalQuiz.get();
+        List<Question> questions = questionRepository.findByQuiz(quiz);
+
+        // Verificar si hay suficientes preguntas para seleccionar 20
+        if (questions.size() < 10) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Mezclar las preguntas en un orden aleatorio
+        Collections.shuffle(questions);
+
+        // Seleccionar las primeras 20 preguntas mezcladas
+        List<Question> randomQuestions = questions.subList(0, 10);
+
+        // Mapear las preguntas y respuestas a QuestionDetails
+        List<QuestionDetails> questionDetailsList = new ArrayList<>();
+        for (Question question : randomQuestions) {
+            List<Answer> answers = answerRepository.findByQuestion(question);
+            QuestionDetails questionDetails = new QuestionDetails(question, answers);
+            questionDetailsList.add(questionDetails);
+        }
+
+        return ResponseEntity.ok(questionDetailsList);
+    }
+
+    @GetMapping("/quizzes/{quizId}/random-questions-answers")
+    public ResponseEntity<List<QuestionWithCorrectAnswer>> getRandomQuestionsForQuizPlus(@PathVariable Long quizId) {
+        Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
+        if (optionalQuiz.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Quiz quiz = optionalQuiz.get();
+        List<Question> questions = questionRepository.findByQuiz(quiz);
+
+        // Verificar si hay suficientes preguntas para seleccionar 20
+        if (questions.size() < 10) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Mezclar las preguntas en un orden aleatorio
+        Collections.shuffle(questions);
+
+        // Seleccionar las primeras 20 preguntas mezcladas
+        List<Question> randomQuestions = questions.subList(0, 10);
+
+        // Mapear las preguntas y respuestas a QuestionWithCorrectAnswer
+        List<QuestionWithCorrectAnswer> questionWithCorrectAnswerList = new ArrayList<>();
+        for (Question question : randomQuestions) {
+            List<Answer> answers = answerRepository.findByQuestion(question);
+
+            // Encuentra la respuesta correcta
+            Answer correctAnswer = answers.stream()
+                    .filter(Answer::isIsCorrect)
+                    .findFirst()
+                    .orElse(null);
+
+            QuestionWithCorrectAnswer questionWithCorrectAnswer = new QuestionWithCorrectAnswer(question,
+                    correctAnswer);
+            questionWithCorrectAnswerList.add(questionWithCorrectAnswer);
+        }
+
+        return ResponseEntity.ok(questionWithCorrectAnswerList);
+    }
+
+    @GetMapping("/quizzes/{quizId}/random-questions-and-answers")
+    public ResponseEntity<List<QuestionWithAllAnswers>> getRandomQuestionsForQuizminus(@PathVariable Long quizId) {
+        Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
+        if (optionalQuiz.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Quiz quiz = optionalQuiz.get();
+        List<Question> questions = questionRepository.findByQuiz(quiz);
+
+        // Verificar si hay suficientes preguntas para seleccionar 20
+        if (questions.size() < 10) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Mezclar las preguntas en un orden aleatorio
+        Collections.shuffle(questions);
+
+        // Seleccionar las primeras 20 preguntas mezcladas
+        List<Question> randomQuestions = questions.subList(0, 10);
+
+        // Mapear las preguntas y respuestas a QuestionWithAllAnswers
+        List<QuestionWithAllAnswers> questionWithAllAnswersList = new ArrayList<>();
+        for (Question question : randomQuestions) {
+            List<Answer> answers = answerRepository.findByQuestion(question);
+
+            // Encuentra la respuesta correcta
+            Answer correctAnswer = answers.stream()
+                    .filter(Answer::isIsCorrect)
+                    .findFirst()
+                    .orElse(null);
+
+            QuestionWithAllAnswers questionWithAllAnswers = new QuestionWithAllAnswers(question, answers,
+                    correctAnswer);
+            questionWithAllAnswersList.add(questionWithAllAnswers);
+        }
+
+        return ResponseEntity.ok(questionWithAllAnswersList);
+    }
 
 }
