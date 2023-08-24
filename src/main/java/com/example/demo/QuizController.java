@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/quizzes")
@@ -203,7 +204,7 @@ public class QuizController {
     }
 
     @GetMapping("/quizzes/{quizId}/random-questions-and-answers")
-    public ResponseEntity<List<QuestionWithAllAnswers>> getRandomQuestionsForQuizminus(@PathVariable Long quizId) {
+    public ResponseEntity<List<QuizQuestionDTO>> getRandomQuestionsForQuizminus(@PathVariable Long quizId) {
         Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
         if (optionalQuiz.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -212,7 +213,7 @@ public class QuizController {
         Quiz quiz = optionalQuiz.get();
         List<Question> questions = questionRepository.findByQuiz(quiz);
 
-        // Verificar si hay suficientes preguntas para seleccionar 20
+        // Verificar si hay suficientes preguntas para seleccionar
         if (questions.size() < 10) {
             return ResponseEntity.badRequest().build();
         }
@@ -220,26 +221,37 @@ public class QuizController {
         // Mezclar las preguntas en un orden aleatorio
         Collections.shuffle(questions);
 
-        // Seleccionar las primeras 20 preguntas mezcladas
+        // Seleccionar las primeras preguntas mezcladas
         List<Question> randomQuestions = questions.subList(0, 10);
 
-        // Mapear las preguntas y respuestas a QuestionWithAllAnswers
-        List<QuestionWithAllAnswers> questionWithAllAnswersList = new ArrayList<>();
+        // Mapear las preguntas y respuestas a QuizQuestionDTO
+        List<QuizQuestionDTO> quizQuestionDTOs = new ArrayList<>();
         for (Question question : randomQuestions) {
             List<Answer> answers = answerRepository.findByQuestion(question);
 
-            // Encuentra la respuesta correcta
             Answer correctAnswer = answers.stream()
                     .filter(Answer::isIsCorrect)
                     .findFirst()
                     .orElse(null);
 
-            QuestionWithAllAnswers questionWithAllAnswers = new QuestionWithAllAnswers(question, answers,
-                    correctAnswer);
-            questionWithAllAnswersList.add(questionWithAllAnswers);
+            List<AnswerDTO> answerDTOs = answers.stream()
+                    .map(answer -> new AnswerDTO(answer.getAnswerId(), answer.getAnswerText(), answer.isIsCorrect()))
+                    .collect(Collectors.toList());
+
+            QuizDTO quizDTO = new QuizDTO(quiz.getQuizId(), quiz.getQuizName());
+
+            QuizQuestionDTO quizQuestionDTO = new QuizQuestionDTO();
+            quizQuestionDTO.setQuestionId(question.getQuestionId());
+            quizQuestionDTO.setQuestionText(question.getQuestionText());
+            quizQuestionDTO.setQuiz(quizDTO);
+            quizQuestionDTO.setAllAnswers(answerDTOs);
+            quizQuestionDTO
+                    .setCorrectAnswer(new AnswerDTO(correctAnswer.getAnswerId(), correctAnswer.getAnswerText(), true));
+
+            quizQuestionDTOs.add(quizQuestionDTO);
         }
 
-        return ResponseEntity.ok(questionWithAllAnswersList);
+        return ResponseEntity.ok(quizQuestionDTOs);
     }
 
 }
