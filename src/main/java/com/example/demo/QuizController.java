@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -213,12 +215,12 @@ public class QuizController {
 
         Quiz quiz = optionalQuiz.get();
         List<Question> questions = questionRepository.findByQuiz(quiz);
-
-        // Verificar si hay suficientes preguntas para seleccionar
-        if (questions.size() < 10) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        /*
+         * // Verificar si hay suficientes preguntas para seleccionar
+         * if (questions.size() < 10) {
+         * return ResponseEntity.badRequest().build();
+         * }
+         */
         // Mezclar las preguntas en un orden aleatorio
         Collections.shuffle(questions);
 
@@ -256,7 +258,7 @@ public class QuizController {
     }
 
     @GetMapping("/quizzes/{quizId}/themed-random-question")
-    public ResponseEntity<QuestionWithAllAnswers> getRandomQuestionForQuiz(@PathVariable Long quizId) {
+    public ResponseEntity<Map<String, Object>> getRandomQuestionForQuiz(@PathVariable Long quizId) {
         Optional<Quiz> optionalQuiz = quizRepository.findById(quizId);
         if (optionalQuiz.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -269,7 +271,6 @@ public class QuizController {
             return ResponseEntity.notFound().build();
         }
 
-        // Elegir una pregunta aleatoria
         Random random = new Random();
         int randomIndex = random.nextInt(questions.size());
         Question randomQuestion = questions.get(randomIndex);
@@ -280,33 +281,50 @@ public class QuizController {
                 .findFirst()
                 .orElse(null);
 
-        QuestionWithAllAnswers questionWithAllAnswers = new QuestionWithAllAnswers(randomQuestion, answers,
-                correctAnswer);
-        return ResponseEntity.ok(questionWithAllAnswers);
-    }
+        Map<String, Object> response = new HashMap<>();
+        response.put("questionId", randomQuestion.getQuestionId());
+        response.put("questionText", randomQuestion.getQuestionText());
+        response.put("quizId", quiz.getQuizId());
+        response.put("quizName", quiz.getQuizName());
 
-    @GetMapping("/quizzes/all-random-question")
-    public ResponseEntity<QuestionWithAllAnswers> getRandomQuestion() {
-        List<Question> allQuestions = questionRepository.findAll();
-
-        if (allQuestions.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        List<Map<String, Object>> allAnswers = new ArrayList<>();
+        for (Answer answer : answers) {
+            Map<String, Object> answerMap = new HashMap<>();
+            answerMap.put("answerId", answer.getAnswerId());
+            answerMap.put("answerText", answer.getAnswerText());
+            answerMap.put("isCorrect", answer.isIsCorrect());
+            allAnswers.add(answerMap);
         }
+        response.put("allAnswers", allAnswers);
+        response.put("correctAnswerId", correctAnswer.getAnswerId());
 
-        // Elegir una pregunta aleatoria
-        Random random = new Random();
-        int randomIndex = random.nextInt(allQuestions.size());
-        Question randomQuestion = allQuestions.get(randomIndex);
-
-        List<Answer> answers = answerRepository.findByQuestion(randomQuestion);
-        Answer correctAnswer = answers.stream()
-                .filter(Answer::isIsCorrect)
-                .findFirst()
-                .orElse(null);
-
-        QuestionWithAllAnswers questionWithAllAnswers = new QuestionWithAllAnswers(randomQuestion, answers,
-                correctAnswer);
-        return ResponseEntity.ok(questionWithAllAnswers);
+        return ResponseEntity.ok(response);
     }
 
+    /*
+     * @GetMapping("/quizzes/all-random-question")
+     * public ResponseEntity<QuestionWithAllAnswers> getRandomQuestion() {
+     * List<Question> allQuestions = questionRepository.findAll();
+     * 
+     * if (allQuestions.isEmpty()) {
+     * return ResponseEntity.notFound().build();
+     * }
+     * 
+     * // Elegir una pregunta aleatoria
+     * Random random = new Random();
+     * int randomIndex = random.nextInt(allQuestions.size());
+     * Question randomQuestion = allQuestions.get(randomIndex);
+     * 
+     * List<Answer> answers = answerRepository.findByQuestion(randomQuestion);
+     * Answer correctAnswer = answers.stream()
+     * .filter(Answer::isIsCorrect)
+     * .findFirst()
+     * .orElse(null);
+     * 
+     * QuestionWithAllAnswers questionWithAllAnswers = new
+     * QuestionWithAllAnswers(randomQuestion, answers,
+     * correctAnswer);
+     * return ResponseEntity.ok(questionWithAllAnswers);
+     * }
+     */
 }
