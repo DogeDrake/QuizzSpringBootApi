@@ -287,15 +287,15 @@ public class QuizController {
         response.put("quizId", quiz.getQuizId());
         response.put("quizName", quiz.getQuizName());
 
-        List<Map<String, Object>> allAnswers = new ArrayList<>();
+        List<Map<String, Object>> allAnswersList = new ArrayList<>();
         for (Answer answer : answers) {
             Map<String, Object> answerMap = new HashMap<>();
             answerMap.put("answerId", answer.getAnswerId());
             answerMap.put("answerText", answer.getAnswerText());
             answerMap.put("isCorrect", answer.isIsCorrect());
-            allAnswers.add(answerMap);
+            allAnswersList.add(answerMap);
         }
-        response.put("allAnswers", allAnswers);
+        response.put("allAnswers", allAnswersList);
         response.put("correctAnswerId", correctAnswer.getAnswerId());
 
         return ResponseEntity.ok(response);
