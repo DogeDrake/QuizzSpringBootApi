@@ -93,6 +93,11 @@ Obtiene una lista de preguntas aleatorias asociadas a un cuestionario específic
 - Parámetro de ruta: `quizId` (ID del cuestionario).
 - Respuesta exitosa: Retorna una lista de preguntas con todas las respuestas y la respuesta correcta para cada pregunta.
 
+Obtiene una pregunta aleatoria de un cuestionario específico.
+
+- URL: `GET /api/quizzes/{quizId}/themed-random-question`
+- Parámetro de ruta: `quizId` (ID del cuestionario).
+- Respuesta exitosa: Retorna una pregunta aleatoria del cuestionario junto con todas las respuestas y la respuesta correcta.
 
 ## Contribución
 
